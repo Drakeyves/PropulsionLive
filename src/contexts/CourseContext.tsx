@@ -68,6 +68,8 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     if (state.progress && user) {
       const syncProgress = async () => {
         try {
+          if (!state.progress) return;
+
           await supabase.from('course_progress').upsert({
             user_id: user.id,
             course_id: state.progress.courseId,
@@ -75,7 +77,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
             last_accessed_module: state.progress.lastAccessedModule,
             last_accessed_at: state.progress.lastAccessedAt,
             progress: state.progress.progress,
-            notes: state.progress.notes,
+            notes: state.progress.notes || [],
           });
 
           // Save to local storage for offline access

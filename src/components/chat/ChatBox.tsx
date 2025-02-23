@@ -20,6 +20,18 @@ interface Message {
   };
 }
 
+interface SupabaseMessage {
+  id: string;
+  content: string;
+  sender_id: string;
+  receiver_id: string;
+  created_at: string;
+  sender: {
+    username: string;
+    avatar_url: string | null;
+  }[];
+}
+
 interface ChatBoxProps {
   receiverId: string;
   receiverName: string;
@@ -65,8 +77,13 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
 
       if (error) throw error;
 
-      const newMessages = data || [];
-      setMessages((prev: Message[]) => {
+      const supabaseMessages = (data || []) as SupabaseMessage[];
+      const newMessages: Message[] = supabaseMessages.map(msg => ({
+        ...msg,
+        sender: msg.sender[0],
+      }));
+
+      setMessages(prev => {
         const combined = pageNumber === 0 ? newMessages : [...prev, ...newMessages];
         return combined.sort(
           (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()

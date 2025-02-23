@@ -1,47 +1,46 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
+import { format } from 'date-fns';
+import { cn } from '../lib/utils';
+
+// UI Components
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+
+// Icons
 import {
   Search,
   Star,
   Clock,
   Settings,
-  Zap,
+  AlertCircle,
+  Users,
   Bot,
-  Brain,
-  Target,
-  ChevronRight,
   Info,
   Sparkles,
-  BarChart,
-  MessageSquare,
-  Rocket,
-  Filter,
+  ChevronRight,
   Heart,
-  AlertCircle,
 } from 'lucide-react';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
-import { cn } from '../lib/utils';
-import { format } from 'date-fns';
-import { useAuth } from '../contexts/AuthContext';
 
 interface Tool {
   id: string;
   name: string;
   description: string;
-  icon: React.ElementType;
-  category: 'automation' | 'marketing' | 'analytics' | 'productivity';
-  status: 'available' | 'beta' | 'coming_soon';
+  category: Exclude<CategoryType, 'all'>;
+  status: 'active' | 'beta' | 'deprecated';
+  lastUpdated: string;
   usageCount: number;
   rating: number;
-  lastUsed?: string;
-  isFavorite?: boolean;
-  url: string;
-  features?: string[];
+  features: string[];
 }
 
 type CategoryType = 'all' | 'automation' | 'marketing' | 'analytics' | 'productivity';
+
+interface ToolCardProps {
+  tool: Tool;
+}
 
 export function Tools() {
   const { user } = useAuth();
@@ -54,27 +53,22 @@ export function Tools() {
       id: 'ai-workflow',
       name: 'AI Workflow Automation',
       description: 'Streamline your operations with intelligent automation powered by advanced AI',
-      icon: Bot,
       category: 'automation',
-      status: 'available',
+      status: 'active',
+      lastUpdated: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
       usageCount: 1250,
       rating: 4.8,
-      lastUsed: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-      isFavorite: true,
-      url: '/tools/workflow',
       features: ['Custom Workflow Builder', 'AI Task Automation', 'Performance Analytics'],
     },
     {
       id: 'performance-optimizer',
       name: 'Performance Optimizer',
       description: 'Maximize efficiency with AI-driven performance tracking and optimization',
-      icon: Zap,
       category: 'analytics',
-      status: 'available',
+      status: 'active',
+      lastUpdated: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
       usageCount: 850,
       rating: 4.9,
-      lastUsed: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-      url: '/tools/optimizer',
       features: ['Real-time Analytics', 'AI Recommendations', 'Custom Reports'],
     },
     // ... add more tools
@@ -97,15 +91,15 @@ export function Tools() {
   // Get recently used tools
   const recentTools = useMemo(() => {
     return [...tools]
-      .filter(tool => tool.lastUsed)
-      .sort((a, b) => new Date(b.lastUsed!).getTime() - new Date(a.lastUsed!).getTime())
+      .filter(tool => tool.lastUpdated)
+      .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
       .slice(0, 3);
   }, [tools]);
 
   // Get featured tools (high usage and rating)
   const featuredTools = useMemo(() => {
     return tools
-      .filter(tool => tool.status === 'available' && tool.rating >= 4.8)
+      .filter(tool => tool.status === 'active' && tool.rating >= 4.8)
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 2);
   }, [tools]);
@@ -133,8 +127,10 @@ export function Tools() {
                   <button
                     className="flex items-center space-x-2 text-accent-metallic hover:text-accent-metallic-light transition-colors"
                     onClick={() => setShowSecurityInfo(!showSecurityInfo)}
+                    data-expanded={showSecurityInfo}
+                    aria-label="Toggle security information"
                   >
-                    <Info className="w-5 h-5" />
+                    <Info className="w-5 h-5" aria-hidden="true" />
                     <span className="text-sm">Security Info</span>
                   </button>
                 </div>
@@ -147,8 +143,12 @@ export function Tools() {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     className="w-full px-4 py-3 bg-background-secondary rounded-lg border border-accent-purple/20 focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 text-accent-metallic-light placeholder-accent-metallic/50"
+                    aria-label="Search tools"
                   />
-                  <Search className="absolute right-3 top-3.5 w-5 h-5 text-accent-metallic" />
+                  <Search
+                    className="absolute right-3 top-3.5 w-5 h-5 text-accent-metallic"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             </div>
@@ -257,151 +257,127 @@ export function Tools() {
   );
 }
 
-function FeaturedToolCard({ tool }: { tool: Tool }) {
+function FeaturedToolCard({ tool }: ToolCardProps) {
   return (
-    <Card
-      hover
-      className="group transition-all duration-300 hover:border-accent-purple/50 hover:shadow-[0_0_30px_rgba(128,0,255,0.2)]"
-    >
-      <div className="p-6 space-y-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-[#8000FF] to-[#FF00FF] bg-opacity-10">
-              <tool.icon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-accent-metallic-light group-hover:text-accent-purple-light transition-colors">
-                {tool.name}
-              </h3>
-              <div className="flex items-center space-x-2 mt-1">
-                <Badge variant="premium" className="text-sm">
-                  Featured
-                </Badge>
-                <div className="flex items-center space-x-1">
-                  <Star className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm text-accent-metallic-light">{tool.rating}</span>
-                </div>
-              </div>
-            </div>
+    <Card className="p-6 bg-background-secondary hover:bg-background-secondary/80 transition-colors border-accent-purple/20">
+      <div className="flex justify-between items-start">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 rounded-lg bg-gradient-to-br from-[#8000FF] to-[#FF00FF] bg-opacity-10">
+            <Bot className="w-6 h-6 text-white" aria-hidden="true" />
           </div>
-          {tool.isFavorite && <Heart className="w-5 h-5 text-red-500" />}
+          <div>
+            <h3 className="text-lg font-semibold text-accent-metallic-light">{tool.name}</h3>
+            <p className="text-sm text-accent-metallic mt-1">{tool.description}</p>
+          </div>
         </div>
-
-        <p className="text-accent-metallic">{tool.description}</p>
-
-        {tool.features && (
-          <div className="space-y-2">
-            {tool.features.map(feature => (
-              <div
-                key={feature}
-                className="flex items-center space-x-2 text-sm text-accent-metallic"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-accent-purple-light" />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </div>
+        {tool.status === 'active' && (
+          <Heart className="w-5 h-5 text-red-500" aria-label="Active tool" />
         )}
+      </div>
 
-        <div className="flex items-center justify-between pt-4">
-          <div className="text-sm text-accent-metallic">
-            {tool.usageCount.toLocaleString()} users
+      <div className="mt-4 flex flex-wrap gap-2">
+        {tool.features.map((feature, index) => (
+          <Badge key={index} variant="outline" className="text-xs">
+            {feature}
+          </Badge>
+        ))}
+      </div>
+
+      <div className="mt-6 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1">
+            <Users className="w-4 h-4 text-accent-metallic" />
+            <span className="text-sm text-accent-metallic">{tool.usageCount} users</span>
           </div>
-          <Button
-            variant="primary"
-            className="bg-gradient-to-r from-[#8000FF] to-[#FF00FF] hover:from-[#00FFFF] hover:to-[#8000FF]"
-            rightIcon={<ChevronRight className="w-4 h-4" />}
-          >
-            Try Now
-          </Button>
+          <div className="flex items-center space-x-1">
+            <Star className="w-4 h-4 text-[#FFD700]" />
+            <span className="text-sm text-accent-metallic">{tool.rating}</span>
+          </div>
+        </div>
+        <Button
+          variant="primary"
+          size="sm"
+          rightIcon={<ChevronRight className="w-4 h-4" />}
+          disabled={tool.status === 'deprecated'}
+        >
+          {tool.status === 'deprecated' ? 'Deprecated' : 'Try Now'}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function RecentToolCard({ tool }: ToolCardProps) {
+  return (
+    <Card className="p-4 bg-background-secondary hover:bg-background-secondary/80 transition-colors border-accent-purple/20">
+      <div className="flex items-center space-x-3">
+        <div className="p-2 rounded-lg bg-gradient-to-br from-[#8000FF] to-[#FF00FF] bg-opacity-10">
+          <Bot className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-accent-metallic-light truncate">
+            {tool.name}
+          </h3>
+          {tool.lastUpdated && (
+            <p className="text-xs text-accent-metallic">
+              Last used: {format(new Date(tool.lastUpdated), 'MMM d, h:mm a')}
+            </p>
+          )}
         </div>
       </div>
     </Card>
   );
 }
 
-function RecentToolCard({ tool }: { tool: Tool }) {
+function ToolCard({ tool }: ToolCardProps) {
   return (
-    <Card hover className="group transition-all duration-300 hover:border-accent-purple/50">
-      <div className="p-4">
+    <Card className="p-4 bg-background-secondary hover:bg-background-secondary/80 transition-colors border-accent-purple/20">
+      <div className="flex justify-between items-start">
         <div className="flex items-center space-x-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-[#8000FF] to-[#FF00FF] bg-opacity-10">
-            <tool.icon className="w-5 h-5 text-white" />
+            <Bot className="w-5 h-5 text-white" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold text-accent-metallic-light truncate">
-              {tool.name}
-            </h3>
-            {tool.lastUsed && (
-              <p className="text-xs text-accent-metallic">
-                Last used: {format(new Date(tool.lastUsed), 'MMM d, h:mm a')}
-              </p>
-            )}
+          <div>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-base font-semibold text-accent-metallic-light">{tool.name}</h3>
+              <Badge
+                variant={
+                  tool.status === 'active'
+                    ? 'default'
+                    : tool.status === 'beta'
+                      ? 'secondary'
+                      : 'outline'
+                }
+                className="text-xs"
+              >
+                {tool.status}
+              </Badge>
+            </div>
+            <p className="text-sm text-accent-metallic mt-1">{tool.description}</p>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            Open
-          </Button>
         </div>
+        {tool.status === 'active' && <Heart className="w-4 h-4 text-red-500" />}
       </div>
-    </Card>
-  );
-}
 
-function ToolCard({ tool }: { tool: Tool }) {
-  return (
-    <Card hover className="group transition-all duration-300 hover:border-accent-purple/50">
-      <div className="p-4 space-y-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-[#8000FF] to-[#FF00FF] bg-opacity-10">
-              <tool.icon className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-accent-metallic-light group-hover:text-accent-purple-light transition-colors">
-                {tool.name}
-              </h3>
-              <div className="flex items-center space-x-2">
-                <Badge
-                  variant={
-                    tool.status === 'available'
-                      ? 'default'
-                      : tool.status === 'beta'
-                        ? 'secondary'
-                        : 'outline'
-                  }
-                  className="text-xs"
-                >
-                  {tool.status.charAt(0).toUpperCase() + tool.status.slice(1)}
-                </Badge>
-                <div className="flex items-center space-x-1">
-                  <Star className="w-3 h-3 text-yellow-500" />
-                  <span className="text-xs text-accent-metallic-light">{tool.rating}</span>
-                </div>
-              </div>
-            </div>
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1">
+            <Users className="w-4 h-4 text-accent-metallic" />
+            <span className="text-xs text-accent-metallic">{tool.usageCount}</span>
           </div>
-          {tool.isFavorite && <Heart className="w-4 h-4 text-red-500" />}
-        </div>
-
-        <p className="text-sm text-accent-metallic line-clamp-2">{tool.description}</p>
-
-        <div className="flex items-center justify-between pt-2">
-          <div className="text-xs text-accent-metallic">
-            {tool.usageCount.toLocaleString()} users
+          <div className="flex items-center space-x-1">
+            <Star className="w-4 h-4 text-[#FFD700]" />
+            <span className="text-xs text-accent-metallic">{tool.rating}</span>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            rightIcon={<ChevronRight className="w-4 h-4" />}
-            disabled={tool.status === 'coming_soon'}
-          >
-            {tool.status === 'coming_soon' ? 'Coming Soon' : 'Try Now'}
-          </Button>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          rightIcon={<ChevronRight className="w-4 h-4" />}
+          disabled={tool.status === 'deprecated'}
+        >
+          {tool.status === 'deprecated' ? 'Deprecated' : 'Try Now'}
+        </Button>
       </div>
     </Card>
   );

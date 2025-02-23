@@ -1,24 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Bell,
-  Lock,
-  User,
-  Globe,
-  Zap,
-  Shield,
-  Mail,
-  Smartphone,
-  Eye,
-  Key,
-  Save,
-  AlertTriangle,
-  Check,
-} from 'lucide-react';
-import { cn } from '../lib/utils';
+
+// UI Components
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
+import { cn } from '../lib/utils';
+
+// Icons
+import { Bell, Lock, User, Globe, Key, Save, AlertTriangle, Check } from 'lucide-react';
 
 interface BaseField {
   label: string;
@@ -224,7 +213,7 @@ export function Settings() {
                           <button
                             type="button"
                             role="switch"
-                            aria-checked={toggleStates[field.label] ? 'true' : 'false'}
+                            aria-checked={(toggleStates[field.label] || false).toString()}
                             aria-labelledby={`${field.label.toLowerCase().replace(/\s+/g, '-')}-label`}
                             onClick={() => handleToggle(field.label)}
                             className={cn(

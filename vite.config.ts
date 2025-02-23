@@ -20,11 +20,11 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        onwarn(warning, warn) {
+        onwarn(warning: any) {
           if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
             return;
           }
-          warn(warning);
+          console.warn(warning);
         },
       },
       target: ['es2021'],

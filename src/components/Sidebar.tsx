@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  Home,
-  PenTool as Tools,
-  Users,
-  User,
-  Settings,
-  MessageSquarePlus,
-  X,
-  Brain,
-  Target,
-  Rocket,
-  BarChart,
-} from 'lucide-react';
+import { Home, Users, User, Settings, Brain, Target, Rocket, BarChart } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -72,7 +60,7 @@ const bottomMenuItems = [
 
 export function Sidebar() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
   const [activeItem, setActiveItem] = useState<string>('');
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipContent, setTooltipContent] = useState({ label: '', description: '' });
