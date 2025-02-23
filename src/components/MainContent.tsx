@@ -1,4 +1,3 @@
-import React from 'react';
 import { Rocket, Gauge, Brain, Target } from 'lucide-react';
 
 export function MainContent() {
@@ -16,8 +15,8 @@ export function MainContent() {
                     Welcome to Propulsion Society
                   </h1>
                   <p className="text-accent-metallic">
-                    Your journey to elite performance starts here. Explore our community,
-                    courses, and tools to accelerate your growth.
+                    Your journey to elite performance starts here. Explore our community, courses,
+                    and tools to accelerate your growth.
                   </p>
                 </div>
                 <Rocket className="w-12 h-12 text-accent-purple animate-pulse" />
@@ -31,29 +30,31 @@ export function MainContent() {
                   icon: Gauge,
                   label: 'Performance Tracker',
                   description: 'Monitor and optimize your daily performance metrics',
-                  gradient: 'from-purple-500/20 to-blue-500/20'
+                  gradient: 'from-purple-500/20 to-blue-500/20',
                 },
                 {
                   icon: Brain,
                   label: 'Mindset Analyzer',
                   description: 'AI-powered tool to enhance decision making',
-                  gradient: 'from-purple-500/20 to-pink-500/20'
+                  gradient: 'from-purple-500/20 to-pink-500/20',
                 },
                 {
                   icon: Target,
                   label: 'Goal Accelerator',
                   description: 'Strategic planning and execution framework',
-                  gradient: 'from-blue-500/20 to-cyan-500/20'
+                  gradient: 'from-blue-500/20 to-cyan-500/20',
                 },
-              ].map((tool) => (
+              ].map(tool => (
                 <div
                   key={tool.label}
                   className="group p-4 rounded-lg bg-background-secondary border border-accent-metallic-dark/10
                            hover:border-accent-purple/20 transition-all duration-300 cursor-pointer"
                 >
                   <div className="relative overflow-hidden">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 
-                                   group-hover:opacity-100 transition-opacity duration-300`} />
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 
+                                   group-hover:opacity-100 transition-opacity duration-300`}
+                    />
                     <div className="relative">
                       <div className="p-3 rounded-lg bg-accent-purple/10 w-fit">
                         <tool.icon className="w-6 h-6 text-accent-purple-light" />
@@ -62,9 +63,7 @@ export function MainContent() {
                         <div className="text-lg font-semibold text-accent-metallic-light mb-1">
                           {tool.label}
                         </div>
-                        <div className="text-sm text-accent-metallic">
-                          {tool.description}
-                        </div>
+                        <div className="text-sm text-accent-metallic">{tool.description}</div>
                       </div>
                     </div>
                   </div>
@@ -74,9 +73,7 @@ export function MainContent() {
 
             {/* Community Feed */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-accent-metallic-light">
-                Community Feed
-              </h2>
+              <h2 className="text-xl font-semibold text-accent-metallic-light">Community Feed</h2>
               {/* Feed items would go here */}
             </div>
           </div>

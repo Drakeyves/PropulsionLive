@@ -129,7 +129,7 @@ export function Header() {
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="p-2 rounded-full bg-accent-purple/10 hover:bg-accent-purple/20 transition-all duration-300 group"
-                  aria-expanded={showProfileMenu ? 'true' : 'false'}
+                  aria-expanded="false"
                   aria-haspopup="true"
                   aria-label="Profile menu"
                 >
@@ -198,7 +198,7 @@ export function Header() {
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
                 className="md:hidden p-2 rounded-lg hover:bg-accent-purple/5 transition-colors"
-                aria-expanded={showMobileMenu ? 'true' : 'false'}
+                aria-expanded="false"
                 aria-label="Toggle mobile menu"
               >
                 <motion.div

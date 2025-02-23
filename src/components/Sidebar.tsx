@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Home,
-  BookOpen,
   PenTool as Tools,
   Users,
   User,

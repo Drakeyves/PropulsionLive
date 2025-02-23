@@ -62,23 +62,4 @@ if (!Array.prototype.flat) {
   });
 }
 
-// String.prototype.replaceAll polyfill
-interface String {
-  replaceAll(searchValue: string | RegExp, replaceValue: string): string;
-}
-
-if (!String.prototype.replaceAll) {
-  Object.defineProperty(String.prototype, 'replaceAll', {
-    configurable: true,
-    writable: true,
-    value: function (this: string, searchValue: string | RegExp, replaceValue: string): string {
-      if (Object.prototype.toString.call(searchValue) === '[object RegExp]') {
-        return this.replace(searchValue, replaceValue);
-      }
-      return this.replace(
-        new RegExp(String(searchValue).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-        replaceValue
-      );
-    },
-  });
-}
+export {}; // Make this a module
