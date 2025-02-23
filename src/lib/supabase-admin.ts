@@ -1,13 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 
-const supabaseUrl = 'https://gjesptymdtynclbdrjjf.supabase.co';
-const supabaseServiceKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZXNwdHltZHR5bmNsYmRyampmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwODU1NDE3MCwiZXhwIjoyMDI0MTMwMTcwfQ.Hs_5Iu_Ks_Ks_Ks_Ks_Ks_Ks_Ks_Ks_Ks_Ks_Ks_Ks';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 
-if (!supabaseServiceKey) {
-  throw new Error('Missing Supabase service key');
-}
+if (!supabaseUrl) throw new Error('Missing env.SUPABASE_URL');
+if (!supabaseServiceKey) throw new Error('Missing env.SUPABASE_SERVICE_KEY');
 
 export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey, {
   auth: {
