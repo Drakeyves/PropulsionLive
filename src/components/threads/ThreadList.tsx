@@ -1,49 +1,38 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  MessageSquare,
-  Users,
-  Clock,
-  Pin,
-  Eye,
-  Plus,
-  AlertTriangle,
-  RefreshCw,
-} from 'lucide-react';
+import { MessageSquare, Clock, Pin, Eye, Plus, AlertTriangle, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { cn } from '../../lib/utils';
 import { ThreadEditor } from './ThreadEditor';
 import ReactMarkdown from 'react-markdown';
 
-interface Thread {
-  id: string;
-  title: string;
-  pinned: boolean;
-  author: {
-    username: string;
-    avatar_url: string | null;
-  };
-  created_at: string;
-  last_activity_at: string;
-  views_count: number;
-  replies_count: number;
-  status: string;
-  category: string;
+interface Author {
+  username: string;
+  avatar_url: string | null;
 }
 
 interface ThreadPost {
   id: string;
   content: string;
-  author: {
-    username: string;
-    avatar_url: string | null;
-  };
+  author: Author;
   created_at: string;
   edited_at: string | null;
+}
+
+interface Thread {
+  id: string;
+  title: string;
+  pinned: boolean;
+  author: Author;
+  created_at: string;
+  last_activity_at: string;
+  views_count: number;
+  replies_count: number;
+  status: 'open' | 'closed' | 'resolved';
+  category: string;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -104,40 +93,24 @@ export function ThreadList() {
       if (pinnedData) {
         const { data: pinnedPostData, error: postError } = await supabase
           .from('thread_posts')
-          .select(
-            `
-            id,
-            content,
-            author:profiles(username, avatar_url),
-            created_at,
-            edited_at
-          `
-          )
-          .eq('thread_id', pinnedData.id)
-          .order('created_at', { ascending: true })
-          .limit(1)
+          .select('*, author:profiles(*)')
+          .eq('pinned', true)
           .single();
 
         if (postError) throw postError;
-        setPinnedPost(pinnedPostData);
+        const formattedPinnedPost: ThreadPost = {
+          id: pinnedPostData.id,
+          content: pinnedPostData.content,
+          author: pinnedPostData.author[0],
+          created_at: pinnedPostData.created_at,
+          edited_at: pinnedPostData.edited_at,
+        };
+        setPinnedPost(formattedPinnedPost);
       }
 
       const { data, error } = await supabase
         .from('threads')
-        .select(
-          `
-          id,
-          title,
-          pinned,
-          author:profiles(username, avatar_url),
-          created_at,
-          last_activity_at,
-          views_count,
-          replies_count,
-          status,
-          category
-        `
-        )
+        .select('*, author:profiles(*)')
         .eq('status', 'active')
         .eq('pinned', false)
         .order('last_activity_at', { ascending: false })
@@ -146,19 +119,16 @@ export function ThreadList() {
       if (error) throw error;
 
       if (data) {
-        setThreads((prev: Thread[]) => {
-          const formattedData = data.map(thread => ({
-            ...thread,
-            author: {
-              username: thread.author[0].username,
-              avatar_url: thread.author[0].avatar_url,
-            },
-          })) as Thread[];
+        const formattedThreads: Thread[] = data.map(thread => ({
+          ...thread,
+          author: thread.author[0],
+        }));
 
-          return pageIndex === 0 ? formattedData : [...prev, ...formattedData];
+        setThreads(prev => {
+          return pageIndex === 0 ? formattedThreads : [...prev, ...formattedThreads];
         });
         setHasMore(data.length === ITEMS_PER_PAGE);
-        cache.current.set(`page-${pageIndex}`, data);
+        cache.current.set(`page-${pageIndex}`, formattedThreads);
       }
     } catch (error) {
       console.error('Error fetching threads:', error);

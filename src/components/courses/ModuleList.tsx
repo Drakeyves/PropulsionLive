@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play, CheckCircle, Lock, Clock } from 'lucide-react';
 import { Card } from '../ui/Card';

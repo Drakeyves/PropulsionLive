@@ -12,6 +12,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "prepare": "husky install",
     "admin": "tsx scripts/admin.ts",
+    "fix-imports": "tsx scripts/fix-imports.ts",
     "postinstall": "npm run prepare"
   },
   "dependencies": {

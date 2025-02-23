@@ -43,7 +43,6 @@ interface ToolCardProps {
 }
 
 export function Tools() {
-  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
   const [showSecurityInfo, setShowSecurityInfo] = useState(false);

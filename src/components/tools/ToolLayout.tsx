@@ -1,9 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Star, Users, Clock, Check, ExternalLink, MessageSquare, Download } from 'lucide-react';
+import { Star, Users, Check, MessageSquare } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { cn } from '../../lib/utils';
 
 interface Testimonial {
   name: string;
@@ -62,7 +61,7 @@ export function ToolLayout({
   comparison,
   techSpecs,
   faq,
-  stats
+  stats,
 }: ToolLayoutProps) {
   return (
     <div className="space-y-12">
@@ -74,12 +73,8 @@ export function ToolLayout({
       >
         <div className="absolute inset-0 bg-gradient-to-br from-accent-purple/10 via-transparent to-transparent" />
         <div className="relative max-w-4xl mx-auto text-center py-16 px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-accent-metallic-light mb-4">
-            {name}
-          </h1>
-          <p className="text-xl text-accent-metallic mb-8">
-            {description}
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold text-accent-metallic-light mb-4">{name}</h1>
+          <p className="text-xl text-accent-metallic mb-8">{description}</p>
           <div className="flex items-center justify-center space-x-8 mb-8">
             <div className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-accent-purple-light" />
@@ -96,7 +91,9 @@ export function ToolLayout({
           </div>
           <div className="flex justify-center space-x-4">
             <Button size="lg">Try for Free</Button>
-            <Button variant="outline" size="lg">Watch Demo</Button>
+            <Button variant="outline" size="lg">
+              Watch Demo
+            </Button>
           </div>
         </div>
       </motion.section>
@@ -146,9 +143,7 @@ export function ToolLayout({
                     <h3 className="text-xl font-semibold text-accent-metallic-light mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-accent-metallic">
-                      {feature.description}
-                    </p>
+                    <p className="text-accent-metallic">{feature.description}</p>
                   </div>
                 </div>
               </Card>
@@ -172,9 +167,7 @@ export function ToolLayout({
             >
               <Card className="p-6">
                 <div className="text-center mb-6">
-                  <div className="text-2xl font-bold text-accent-metallic-light">
-                    {plan.price}
-                  </div>
+                  <div className="text-2xl font-bold text-accent-metallic-light">{plan.price}</div>
                   <div className="text-accent-metallic">per {plan.interval}</div>
                 </div>
                 <ul className="space-y-4 mb-6">
@@ -254,9 +247,7 @@ export function ToolLayout({
                     </div>
                   </div>
                 </div>
-                <p className="text-accent-metallic">
-                  "{testimonial.content}"
-                </p>
+                <p className="text-accent-metallic">"{testimonial.content}"</p>
               </Card>
             </motion.div>
           ))}
@@ -298,9 +289,7 @@ export function ToolLayout({
               <h3 className="text-xl font-semibold text-accent-metallic-light mb-2">
                 {item.question}
               </h3>
-              <p className="text-accent-metallic">
-                {item.answer}
-              </p>
+              <p className="text-accent-metallic">{item.answer}</p>
             </Card>
           ))}
         </div>
@@ -317,7 +306,9 @@ export function ToolLayout({
           </p>
           <div className="flex justify-center space-x-4">
             <Button size="lg">Start Free Trial</Button>
-            <Button variant="outline" size="lg">Contact Sales</Button>
+            <Button variant="outline" size="lg">
+              Contact Sales
+            </Button>
           </div>
         </Card>
       </section>

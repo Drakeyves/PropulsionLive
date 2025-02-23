@@ -213,7 +213,7 @@ export function Settings() {
                           <button
                             type="button"
                             role="switch"
-                            aria-checked={(toggleStates[field.label] || false).toString()}
+                            aria-checked={toggleStates[field.label] ? 'true' : 'false'}
                             aria-labelledby={`${field.label.toLowerCase().replace(/\s+/g, '-')}-label`}
                             onClick={() => handleToggle(field.label)}
                             className={cn(

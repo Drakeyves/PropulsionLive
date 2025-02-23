@@ -1,22 +1,19 @@
 import { execSync } from 'child_process';
-import * as fs from 'fs';
-import * as path from 'path';
 
 const filesToFix = [
-  'src/components/chat/ChatList.tsx',
-  'src/components/courses/ModuleList.tsx',
-  'src/components/posts/PostEditor.tsx',
   'src/components/posts/PostPreview.tsx',
   'src/components/Sidebar.tsx',
   'src/components/threads/ThreadEditor.tsx',
   'src/components/threads/ThreadList.tsx',
   'src/components/tools/ToolLayout.tsx',
   'src/components/ui/LoadingSpinner.tsx',
+  'src/contexts/CourseContext.tsx',
   'src/pages/AdminDashboard.tsx',
   'src/pages/Community.tsx',
+  'src/pages/CourseModule.tsx',
+  'src/pages/Courses.tsx',
   'src/pages/Messages.tsx',
   'src/pages/Profile.tsx',
-  'src/pages/Settings.tsx',
   'src/pages/Tools.tsx',
 ];
 

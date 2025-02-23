@@ -6,19 +6,14 @@ import { useCourse } from '../../contexts/CourseContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/Tabs';
-
-interface Resource {
-  id: string;
-  title: string;
-  type: 'pdf' | 'link' | 'file';
-  url: string;
-}
+import { Resource } from '../../lib/types/course';
 
 interface ModuleContentProps {
   moduleId: string;
   title: string;
   description: string;
   videoUrl: string;
+  transcript: string;
   resources: Resource[];
   notes?: string;
 }
@@ -28,6 +23,7 @@ export function ModuleContent({
   title,
   description,
   videoUrl,
+  transcript,
   resources,
   notes: initialNotes = '',
 }: ModuleContentProps) {
