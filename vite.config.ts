@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
-    // Vite options tailored for Vercel deployments
     build: {
       rollupOptions: {
         onwarn(warning, warn) {
@@ -28,19 +27,20 @@ export default defineConfig(({ mode }) => {
           warn(warning);
         },
       },
-      target: ['es2015', 'edge88', 'firefox78', 'chrome87', 'safari13'],
+      target: ['es2021'],
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: true,
+      sourcemap: mode === 'development',
       minify: 'terser',
       terserOptions: {
         compress: {
-          drop_console: true,
+          drop_console: mode === 'production',
+          drop_debugger: mode === 'production',
         },
       },
+      chunkSizeWarningLimit: 1000,
     },
     server: {
-      // Ensure Vite responds to network requests
       host: true,
       port: 3000,
       cors: true,
@@ -48,6 +48,10 @@ export default defineConfig(({ mode }) => {
         'Cross-Origin-Opener-Policy': 'same-origin',
         'Cross-Origin-Embedder-Policy': 'require-corp',
       },
+    },
+    preview: {
+      port: 3000,
+      host: true,
     },
   };
 });
