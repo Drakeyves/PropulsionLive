@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, MessageSquare } from 'lucide-react';
+import { Users, Search } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
@@ -46,18 +46,20 @@ export function ChatList({ onSelectUser, selectedUserId }: ChatListProps) {
 
         // Fetch last messages for each user
         const usersWithMessages = await Promise.all(
-          (usersData || []).map(async (userData) => {
+          (usersData || []).map(async userData => {
             const { data: messageData } = await supabase
               .from('messages')
               .select('content, created_at')
-              .or(`and(sender_id.eq.${user.id},receiver_id.eq.${userData.id}),and(sender_id.eq.${userData.id},receiver_id.eq.${user.id})`)
+              .or(
+                `and(sender_id.eq.${user.id},receiver_id.eq.${userData.id}),and(sender_id.eq.${userData.id},receiver_id.eq.${user.id})`
+              )
               .order('created_at', { ascending: false })
               .limit(1)
               .single();
 
             return {
               ...userData,
-              last_message: messageData || undefined
+              last_message: messageData || undefined,
             };
           })
         );
@@ -82,26 +84,27 @@ export function ChatList({ onSelectUser, selectedUserId }: ChatListProps) {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `or(sender_id=eq.${user.id},receiver_id=eq.${user.id})`
+          filter: `or(sender_id=eq.${user.id},receiver_id=eq.${user.id})`,
         },
-        async (payload) => {
+        async payload => {
           const newMessage = payload.new as any;
-          const otherUserId = newMessage.sender_id === user.id 
-            ? newMessage.receiver_id 
-            : newMessage.sender_id;
+          const otherUserId =
+            newMessage.sender_id === user.id ? newMessage.receiver_id : newMessage.sender_id;
 
-          setUsers(prev => prev.map(u => {
-            if (u.id === otherUserId) {
-              return {
-                ...u,
-                last_message: {
-                  content: newMessage.content,
-                  created_at: newMessage.created_at
-                }
-              };
-            }
-            return u;
-          }));
+          setUsers(prev =>
+            prev.map(u => {
+              if (u.id === otherUserId) {
+                return {
+                  ...u,
+                  last_message: {
+                    content: newMessage.content,
+                    created_at: newMessage.created_at,
+                  },
+                };
+              }
+              return u;
+            })
+          );
         }
       )
       .subscribe();
@@ -111,7 +114,7 @@ export function ChatList({ onSelectUser, selectedUserId }: ChatListProps) {
     };
   }, [user]);
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = users.filter(u =>
     u.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -127,13 +130,11 @@ export function ChatList({ onSelectUser, selectedUserId }: ChatListProps) {
     <Card className="h-[600px] flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-accent-metallic-dark/10">
-        <h3 className="text-lg font-semibold text-accent-metallic-light mb-4">
-          Messages
-        </h3>
+        <h3 className="text-lg font-semibold text-accent-metallic-light mb-4">Messages</h3>
         <Input
           placeholder="Search users..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           leftIcon={<Search className="w-4 h-4" />}
         />
       </div>
@@ -145,9 +146,7 @@ export function ChatList({ onSelectUser, selectedUserId }: ChatListProps) {
             <div className="animate-spin w-6 h-6 border-2 border-accent-purple border-t-transparent rounded-full" />
           </div>
         ) : error ? (
-          <div className="p-4 text-center text-red-400">
-            {error}
-          </div>
+          <div className="p-4 text-center text-red-400">{error}</div>
         ) : filteredUsers.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-accent-metallic">
             <Users className="w-8 h-8 mb-2" />
@@ -155,14 +154,14 @@ export function ChatList({ onSelectUser, selectedUserId }: ChatListProps) {
           </div>
         ) : (
           <div className="divide-y divide-accent-metallic-dark/10">
-            {filteredUsers.map((chatUser) => (
+            {filteredUsers.map(chatUser => (
               <motion.button
                 key={chatUser.id}
                 onClick={() => onSelectUser(chatUser.id, chatUser.username)}
                 className={cn(
-                  "w-full p-4 text-left transition-colors hover:bg-accent-purple/5",
-                  "focus:outline-none focus:bg-accent-purple/5",
-                  selectedUserId === chatUser.id && "bg-accent-purple/10"
+                  'w-full p-4 text-left transition-colors hover:bg-accent-purple/5',
+                  'focus:outline-none focus:bg-accent-purple/5',
+                  selectedUserId === chatUser.id && 'bg-accent-purple/10'
                 )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MessageSquare, Users, Clock, Pin, 
-  Eye, Plus, AlertTriangle, RefreshCw 
+import {
+  MessageSquare,
+  Users,
+  Clock,
+  Pin,
+  Eye,
+  Plus,
+  AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '../../contexts/AuthContext';
@@ -64,7 +70,8 @@ export function ThreadList() {
 
       const { data: pinnedData, error: pinnedError } = await supabase
         .from('threads')
-        .select(`
+        .select(
+          `
           id,
           title,
           pinned,
@@ -75,24 +82,37 @@ export function ThreadList() {
           replies_count,
           status,
           category
-        `)
+        `
+        )
         .eq('pinned', true)
         .eq('status', 'active')
         .single();
 
       if (pinnedError) throw pinnedError;
-      setPinnedThread(pinnedData);
+      setPinnedThread(
+        pinnedData
+          ? ({
+              ...pinnedData,
+              author: {
+                username: pinnedData.author[0].username,
+                avatar_url: pinnedData.author[0].avatar_url,
+              },
+            } as Thread)
+          : null
+      );
 
       if (pinnedData) {
         const { data: pinnedPostData, error: postError } = await supabase
           .from('thread_posts')
-          .select(`
+          .select(
+            `
             id,
             content,
             author:profiles(username, avatar_url),
             created_at,
             edited_at
-          `)
+          `
+          )
           .eq('thread_id', pinnedData.id)
           .order('created_at', { ascending: true })
           .limit(1)
@@ -104,7 +124,8 @@ export function ThreadList() {
 
       const { data, error } = await supabase
         .from('threads')
-        .select(`
+        .select(
+          `
           id,
           title,
           pinned,
@@ -115,7 +136,8 @@ export function ThreadList() {
           replies_count,
           status,
           category
-        `)
+        `
+        )
         .eq('status', 'active')
         .eq('pinned', false)
         .order('last_activity_at', { ascending: false })
@@ -124,7 +146,17 @@ export function ThreadList() {
       if (error) throw error;
 
       if (data) {
-        setThreads(prev => pageIndex === 0 ? data : [...prev, ...data]);
+        setThreads((prev: Thread[]) => {
+          const formattedData = data.map(thread => ({
+            ...thread,
+            author: {
+              username: thread.author[0].username,
+              avatar_url: thread.author[0].avatar_url,
+            },
+          })) as Thread[];
+
+          return pageIndex === 0 ? formattedData : [...prev, ...formattedData];
+        });
         setHasMore(data.length === ITEMS_PER_PAGE);
         cache.current.set(`page-${pageIndex}`, data);
       }
@@ -140,7 +172,7 @@ export function ThreadList() {
   // Infinite scroll setup
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         if (entries[0].isIntersecting && hasMore && !loadingMore) {
           setPage(prev => prev + 1);
         }
@@ -159,7 +191,7 @@ export function ThreadList() {
   useEffect(() => {
     const cachedData = cache.current.get(`page-${page}`);
     if (cachedData) {
-      setThreads(prev => page === 0 ? cachedData : [...prev, ...cachedData]);
+      setThreads(prev => (page === 0 ? cachedData : [...prev, ...cachedData]));
     } else {
       fetchThreads(page);
     }
@@ -169,16 +201,12 @@ export function ThreadList() {
   useEffect(() => {
     const subscription = supabase
       .channel('threads_channel')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'threads' },
-        () => {
-          // Clear cache and refetch first page
-          cache.current.clear();
-          setPage(0);
-          fetchThreads(0);
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'threads' }, () => {
+        // Clear cache and refetch first page
+        cache.current.clear();
+        setPage(0);
+        fetchThreads(0);
+      })
       .subscribe();
 
     return () => {
@@ -240,10 +268,7 @@ export function ThreadList() {
       {/* Create Thread Button */}
       {user && (
         <div className="flex justify-end">
-          <Button
-            onClick={() => setShowEditor(true)}
-            leftIcon={<Plus className="w-5 h-5" />}
-          >
+          <Button onClick={() => setShowEditor(true)} leftIcon={<Plus className="w-5 h-5" />}>
             Create Thread
           </Button>
         </div>
@@ -251,7 +276,7 @@ export function ThreadList() {
 
       {/* Thread List */}
       <div className="space-y-4">
-        {threads.map((thread) => (
+        {threads.map(thread => (
           <motion.div
             key={thread.id}
             initial={{ opacity: 0, y: 20 }}
@@ -275,9 +300,7 @@ export function ThreadList() {
                       </div>
                       <div className="flex items-center space-x-1">
                         <Clock className="w-4 h-4" />
-                        <span>
-                          {format(new Date(thread.last_activity_at), 'MMM d, HH:mm')}
-                        </span>
+                        <span>{format(new Date(thread.last_activity_at), 'MMM d, HH:mm')}</span>
                       </div>
                     </div>
                   </div>

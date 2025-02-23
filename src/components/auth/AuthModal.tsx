@@ -58,13 +58,7 @@ export function AuthModal({ mode, onClose, onModeChange }: AuthModalProps) {
       if (mode === 'signin') {
         await signIn(email, password);
       } else {
-        if (!username) {
-          throw new Error('Username is required');
-        }
-        if (username.length < 3) {
-          throw new Error('Username must be at least 3 characters long');
-        }
-        await signUp(email, password, username);
+        await signUp(email, password);
       }
       onClose();
     } catch (err) {

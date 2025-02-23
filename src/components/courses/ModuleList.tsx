@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play, CheckCircle, Lock, Clock } from 'lucide-react';
 import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
 import { useCourse } from '../../contexts/CourseContext';
 import type { Module } from '../../lib/types/course';
 import { cn } from '../../lib/utils';
@@ -63,6 +62,7 @@ function ModuleCard({ module, isCompleted, isLocked, isActive, onSelect }: Modul
 
 interface ModuleListProps {
   modules: Module[];
+  courseId?: string;
 }
 
 export function ModuleList({ modules }: ModuleListProps) {

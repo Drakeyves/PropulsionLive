@@ -5,13 +5,19 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "lib": ["dom", "dom.iterable", "esnext", "es2021"],
+    "target": "es2021"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

@@ -28,12 +28,13 @@ export interface Module {
   resources: Resource[];
 }
 
-export interface Resource {
+export type Resource = {
   id: string;
   title: string;
   url: string;
-  type: 'pdf' | 'link' | 'code';
-}
+  type: 'link' | 'file' | 'pdf' | 'code';
+  description?: string;
+};
 
 export interface CourseProgress {
   userId: string;

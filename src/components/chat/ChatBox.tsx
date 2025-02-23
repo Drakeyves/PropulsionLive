@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader, ChevronDown } from 'lucide-react';
+import { Send, Loader } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../ui/Card';
@@ -31,7 +31,6 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -48,29 +47,33 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
       setLoadingMore(true);
       const { data, error } = await supabase
         .from('messages')
-        .select(`
+        .select(
+          `
           id,
           content,
           sender_id,
           receiver_id,
           created_at,
           sender:profiles!sender_id(username, avatar_url)
-        `)
-        .or(`and(sender_id.eq.${user?.id},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${user?.id})`)
+        `
+        )
+        .or(
+          `and(sender_id.eq.${user?.id},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${user?.id})`
+        )
         .order('created_at', { ascending: false })
         .range(pageNumber * MESSAGES_PER_PAGE, (pageNumber + 1) * MESSAGES_PER_PAGE - 1);
 
       if (error) throw error;
 
       const newMessages = data || [];
-      setMessages(prev => {
+      setMessages((prev: Message[]) => {
         const combined = pageNumber === 0 ? newMessages : [...prev, ...newMessages];
-        return combined.sort((a, b) => 
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        return combined.sort(
+          (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
       });
       setHasMore(newMessages.length === MESSAGES_PER_PAGE);
-      
+
       if (pageNumber === 0) {
         scrollToBottom();
       }
@@ -78,7 +81,6 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
       console.error('Error fetching messages:', error);
       setError('Failed to load messages');
     } finally {
-      setLoading(false);
       setLoadingMore(false);
     }
   };
@@ -97,9 +99,9 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `sender_id=eq.${user.id},receiver_id=eq.${receiverId}`
+          filter: `sender_id=eq.${user.id},receiver_id=eq.${receiverId}`,
         },
-        (payload) => {
+        payload => {
           const newMessage = payload.new as Message;
           setMessages(prev => [...prev, newMessage]);
           scrollToBottom();
@@ -108,12 +110,12 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT', 
+          event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `sender_id=eq.${receiverId},receiver_id=eq.${user.id}`
+          filter: `sender_id=eq.${receiverId},receiver_id=eq.${user.id}`,
         },
-        (payload) => {
+        payload => {
           const newMessage = payload.new as Message;
           setMessages(prev => [...prev, newMessage]);
           scrollToBottom();
@@ -169,13 +171,11 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
 
     try {
       setSending(true);
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          content: newMessage.trim(),
-          sender_id: user.id,
-          receiver_id: receiverId
-        });
+      const { error } = await supabase.from('messages').insert({
+        content: newMessage.trim(),
+        sender_id: user.id,
+        receiver_id: receiverId,
+      });
 
       if (error) throw error;
       setNewMessage('');
@@ -205,10 +205,7 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
       </div>
 
       {/* Messages Container */}
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
-      >
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {/* Loading More Indicator */}
         {loadingMore && (
           <div className="flex justify-center py-2">
@@ -218,7 +215,7 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
 
         {/* Messages */}
         <AnimatePresence>
-          {messages.map((message) => {
+          {messages.map(message => {
             const isOwn = message.sender_id === user.id;
             return (
               <motion.div
@@ -227,17 +224,17 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 className={cn(
-                  "flex items-end space-x-2",
-                  isOwn ? "flex-row-reverse space-x-reverse" : "flex-row"
+                  'flex items-end space-x-2',
+                  isOwn ? 'flex-row-reverse space-x-reverse' : 'flex-row'
                 )}
               >
                 <div className="flex flex-col space-y-1 max-w-[70%]">
                   <div
                     className={cn(
-                      "rounded-lg px-4 py-2",
+                      'rounded-lg px-4 py-2',
                       isOwn
-                        ? "bg-accent-purple text-white"
-                        : "bg-background-secondary text-accent-metallic-light"
+                        ? 'bg-accent-purple text-white'
+                        : 'bg-background-secondary text-accent-metallic-light'
                     )}
                   >
                     {message.content}
@@ -259,7 +256,7 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
           <input
             type="text"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={e => setNewMessage(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 input"
             disabled={sending}
@@ -269,18 +266,10 @@ export function ChatBox({ receiverId, receiverName }: ChatBoxProps) {
             disabled={sending || !newMessage.trim()}
             className="min-w-[44px] h-[44px] p-0 flex items-center justify-center"
           >
-            {sending ? (
-              <Loader className="w-5 h-5 animate-spin" />
-            ) : (
-              <Send className="w-5 h-5" />
-            )}
+            {sending ? <Loader className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </Button>
         </div>
-        {error && (
-          <p className="text-sm text-red-400 mt-2">
-            {error}
-          </p>
-        )}
+        {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
       </form>
     </Card>
   );
